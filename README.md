@@ -8,7 +8,7 @@ Post Payments adds a "Story cost" meta box to the post edit screen for selected 
 Post Payments currently requires Fieldmanager and Co-Authors Plus. If it is activated without Fieldmanager, the settings page and meta box will not available, and if it is activated without Co-Authors Plus, the report page will not be available.
 
 ## How to use
-Activate the plugin and go to Settings -> Post Payments. Select the post types you want to add the "Story cost" meta box. Instruct your editors to enter story costs as necessary on the post edit page, and then to avail themselves of the "Payments Report" page in the Tools menu in the dashboard.
+Activate the plugin and go to Settings -> Post Payments. Select the post types to which you want to add the "Story cost" meta box. Set your local currency symbol (the default is '$'). Then, instruct your editors to enter story costs as necessary on the post edit page, and then to avail themselves of the "Payments Report" page in the Tools menu in the dashboard.
 
 ## Roadmap
 * Support sites using WP users rather than Co-Authors Plus (which describes almost no sites at Alley, currently).
