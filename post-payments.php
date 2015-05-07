@@ -155,10 +155,10 @@ class Post_Payments {
 		foreach ( $posts as $post ) {
 			$post_authors = get_coauthors( $post->ID );
 			foreach ( $post_authors as $post_author ) {
-				if ( empty( $authors[$post_author->display_name] ) ) {
-					$authors[$post_author->display_name] = $this->add_author( $post_author, $post->ID );
+				if ( empty( $authors[ $post_author->display_name ] ) ) {
+					$authors[ $post_author->display_name ] = $this->add_author( $post_author, $post->ID );
 				} else {
-					$authors[$post_author->display_name] = $this->add_author( $post_author, $post->ID, $authors[$post_author->display_name] );
+					$authors[ $post_author->display_name ] = $this->add_author( $post_author, $post->ID, $authors[ $post_author->display_name ] );
 				}
 			}
 		}
