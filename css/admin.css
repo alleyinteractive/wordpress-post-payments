@@ -1,0 +1,17 @@
+ul.post-payments-list {
+	list-style-type: disc;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+ul.post-payments-list li {
+	margin-left: 3%;
+}
+
+p.post-payments-author-name {
+	margin-bottom: 0;
+}
+
+p.post-payments-author-payment {
+	margin-top: 0;
+}
