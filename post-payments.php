@@ -36,10 +36,10 @@ class Post_Payments {
 
 		$fm = new Fieldmanager_TextField( array( 
 			'name' => $this->meta_key,
-			'description' => __( 'Enter a decimal amount without a currency sign.' ),
+			'description' => __( 'Enter a decimal amount without a currency sign.', 'post-payments' ),
 			'attributes' => array( 'size' => 10, 'placeholder' => '0.00' ),
 		) );
-		$fm->add_meta_box( __( 'Story Cost' ), $this->get_post_types(), 'normal', 'default' );
+		$fm->add_meta_box( __( 'Story Cost', 'post-payments' ), $this->get_post_types(), 'normal', 'default' );
 	}
 
 	public function add_settings_page() {
@@ -53,16 +53,16 @@ class Post_Payments {
 			'name' => $this->settings_option,
 			'children' => array(
 				'post_types' => new Fieldmanager_Checkboxes( array(
-					'label' => __( 'Select post types to include in cost calculations.' ),
+					'label' => __( 'Select post types to include in cost calculations.', 'post-payments' ),
 					'options' => $post_types,
 				) ),
 				'currency_symbol' => new Fieldmanager_TextField( array(
-					'label' => __( 'Currency symbol' ),
+					'label' => __( 'Currency symbol', 'post-payments' ),
 					'attributes' => array( 'size' => 3 ),
 				) ),
 			),
 		) );
-		$fm->add_submenu_page( 'options-general.php', __( 'Post Payments Settings' ), __( 'Post Payments' ), 'edit_posts', 'post_payments' );
+		$fm->add_submenu_page( 'options-general.php', __( 'Post Payments Settings', 'post-payments' ), __( 'Post Payments', 'post-payments' ), 'edit_posts', 'post_payments' );
 	}
 
 	public function add_tool_page() {
@@ -71,7 +71,7 @@ class Post_Payments {
 			return;
 		}
 
-		add_management_page( __( 'Post Payments Report' ), __( 'Payments Report' ), 'edit_posts', 'payments_report', array( $this, 'report_page' ) );
+		add_management_page( __( 'Post Payments Report', 'post-payments' ), __( 'Payments Report', 'post-payments' ), 'edit_posts', 'payments_report', array( $this, 'report_page' ) );
 	}
 
 	public function enqueue() {
@@ -88,14 +88,14 @@ class Post_Payments {
 					jQuery('input.datepicker').datepicker();
 				});
 			</script>
-			<h2><?php esc_html_e( 'Post Payments Report' ); ?></h2>
-			<p><?php esc_html_e( 'Select a date range to view the report.' ); ?></p>
+			<h2><?php esc_html_e( 'Post Payments Report', 'post-payments' ); ?></h2>
+			<p><?php esc_html_e( 'Select a date range to view the report.', 'post-payments' ); ?></p>
 			<p>
 				<form>
 					<input type="hidden" name="page" value="payments_report" /> 
 					<input name="from_date" class="datepicker" <?php if ( ! empty( $_GET['from_date'] ) ): ?>value="<?php echo esc_attr( $_GET['from_date'] ); ?>"<?php endif; ?> />
 					<input name="to_date" class="datepicker" <?php if ( ! empty( $_GET['to_date'] ) ): ?>value="<?php echo esc_attr( $_GET['to_date'] ); ?>"<?php endif; ?> />
-					<input type="submit" value="<?php esc_html_e( 'Generate' ); ?>" class="button submit" />
+					<input type="submit" value="<?php esc_html_e( 'Generate', 'post-payments' ); ?>" class="button submit" />
 				</form>
 			</p>
 		</div><?php
@@ -114,7 +114,7 @@ class Post_Payments {
 					<ul class="post-payments-list"><?php foreach ( $data['posts'] as $post_id ): ?>
 						<li><?php echo esc_html( $this->format_currency( get_post_meta( $post_id, $this->meta_key, true ) ) ); ?>: <i><a href="<?php echo esc_url( get_permalink( $post_id ) ); ?>"><?php echo esc_html( get_the_title( $post_id ) ); ?></a></i></li>
 					<?php endforeach; ?></ul>
-					<p class="post-payments-author-payment"><?php esc_html_e( 'Total payment:' ); ?> <b><?php echo esc_html( $this->format_currency( $data['total'] ) ); ?></b></p>
+					<p class="post-payments-author-payment"><?php esc_html_e( 'Total payment:', 'post-payments' ); ?> <b><?php echo esc_html( $this->format_currency( $data['total'] ) ); ?></b></p>
 				<?php endforeach; ?>
 
 				<?php
