@@ -133,7 +133,7 @@ class Post_Payments {
 
 	public function get_report_data( $from_date, $to_date ) {
 		$posts = get_posts( array(
-			'posts_per_page' => -1,
+			'posts_per_page' => 1000,
 			'post_status' => 'publish',
 			'post_type' => $this->get_post_types(),
 			'meta_query' => array(
