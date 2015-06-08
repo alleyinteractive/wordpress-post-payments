@@ -5,7 +5,7 @@
  * Version: 1.0
  * Author: Matt Johnson, Alley Interactive
  *
- * 
+ *
  */
 
 class Post_Payments {
@@ -21,6 +21,7 @@ class Post_Payments {
 		add_action( 'init', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'enqueue' ) );
 		add_action( 'admin_menu', array( $this, 'add_tool_page' ) );
+		add_action( 'admin_init', array( $this, 'download_report' ) );
 
 		$settings = get_option( $this->settings_option );
 		if ( ! empty( $settings['currency_symbol'] ) ) {
@@ -34,7 +35,7 @@ class Post_Payments {
 			return;
 		}
 
-		$fm = new Fieldmanager_TextField( array( 
+		$fm = new Fieldmanager_TextField( array(
 			'name' => $this->meta_key,
 			'description' => __( 'Enter a decimal amount without a currency sign.', 'post-payments' ),
 			'attributes' => array( 'size' => 10, 'placeholder' => '0.00' ),
@@ -49,7 +50,7 @@ class Post_Payments {
 		}
 
 		$post_types = get_post_types( array( 'show_ui' => true ), 'names' );
-		$fm = new Fieldmanager_Group( array( 
+		$fm = new Fieldmanager_Group( array(
 			'name' => $this->settings_option,
 			'children' => array(
 				'post_types' => new Fieldmanager_Checkboxes( array(
@@ -92,7 +93,7 @@ class Post_Payments {
 			<p><?php esc_html_e( 'Select a date range to view the report.', 'post-payments' ); ?></p>
 			<p>
 				<form>
-					<input type="hidden" name="page" value="payments_report" /> 
+					<input type="hidden" name="page" value="payments_report" />
 					<input name="from_date" class="datepicker" <?php if ( ! empty( $_GET['from_date'] ) ): ?>value="<?php echo esc_attr( $_GET['from_date'] ); ?>"<?php endif; ?> />
 					<input name="to_date" class="datepicker" <?php if ( ! empty( $_GET['to_date'] ) ): ?>value="<?php echo esc_attr( $_GET['to_date'] ); ?>"<?php endif; ?> />
 					<input type="submit" value="<?php esc_html_e( 'Generate', 'post-payments' ); ?>" class="button submit" />
@@ -116,7 +117,13 @@ class Post_Payments {
 					<?php endforeach; ?></ul>
 					<p class="post-payments-author-payment"><?php esc_html_e( 'Total payment:', 'post-payments' ); ?> <b><?php echo esc_html( $this->format_currency( $data['total'] ) ); ?></b></p>
 				<?php endforeach; ?>
-
+					<form>
+						<input type="hidden" name="page" value="payments_report" />
+						<input type="hidden" name="from_date" class="datepicker" <?php if ( ! empty( $_GET['from_date'] ) ): ?>value="<?php echo esc_attr( $_GET['from_date'] ); ?>"<?php endif; ?> />
+						<input type="hidden" name="to_date" class="datepicker" <?php if ( ! empty( $_GET['to_date'] ) ): ?>value="<?php echo esc_attr( $_GET['to_date'] ); ?>"<?php endif; ?> />
+						<input type="hidden" name="download" value="download_report" />
+						<input type="submit" value="<?php esc_html_e( 'Download Report', 'post-payments' ); ?>" class="button submit" />
+					</form>
 				<?php
 			}
 		}
@@ -191,7 +198,48 @@ class Post_Payments {
 		return $this->currency_symbol . number_format( $number, 2 );
 	}
 
-	
+	public function download_report() {
+
+		if ( ! empty( $_GET['download'] ) && 'download_report' == $_GET['download'] ) {
+			// allowing for filterable capabilities
+			$user_cap = apply_filters( 'post-payment-caps', 'update_core' );
+			// restricting to admins only by default
+			if ( ! current_user_can( $user_cap ) ) {
+				wp_die( __( 'You do not have permission to do this', 'post-payments' ) );
+			}
+			// setting headers
+			header( 'Content-Type: text/csv; charset=utf-8' );
+			header( 'Content-Disposition: attachment; filename=' . sanitize_text_field( $_GET['from_date'] ) . '-to-' . sanitize_text_field( $_GET['to_date'] ) . '-author-data.csv' );
+			// getting authors for report
+			$authors = $this->get_report_data( sanitize_text_field( $_GET['from_date'] ), sanitize_text_field( $_GET['to_date'] ) );
+			// start creating the csv string
+			$labels = array(
+				esc_html__( 'Total', 'post-payments' ),
+				esc_html__( 'Name', 'post-payments' ),
+				esc_html__( 'Articles', 'post-payments' ),
+				"\n",
+			);
+			$csv = implode( ',', $labels );
+			foreach ( $authors as $name => $author ) {
+				$author_posts = $author['posts'];
+				foreach ( $author_posts as $key => $post ) {
+					if ( 0 == $key ) {
+						// first row for each author
+						$csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . esc_html( get_the_title( $post ) ) . "\n";
+					} else {
+						// empty info to group articles by author
+						$csv .= '' . ',' . '' . ',' . esc_html( get_the_title( $post ) ) . "\n";
+					}
+				}
+			}
+			// echoing the csv string for the download
+			echo $csv;
+			die();
+		}
+
+	}
+
+
 }
 
 new Post_Payments();
