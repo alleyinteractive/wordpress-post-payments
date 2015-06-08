@@ -201,6 +201,10 @@ class Post_Payments {
 	public function download_report() {
 
 		if ( ! empty( $_GET['download'] ) && 'download_report' == $_GET['download'] ) {
+			// restricting to admins only
+			if ( ! current_user_can( 'update_core' ) ) {
+				wp_die( __( 'You do not have permission to do this', 'post-payments' ) );
+			}
 			// setting headers
 			header('Content-Type: text/csv; charset=utf-8');
 			header('Content-Disposition: attachment; filename=' . sanitize_text_field( $_GET['from_date'] ) . '-to-' . sanitize_text_field( $_GET['to_date'] ) . '-author-data.csv');
