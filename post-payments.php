@@ -201,26 +201,34 @@ class Post_Payments {
 	public function download_report() {
 
 		if ( ! empty( $_GET['download'] ) && 'download_report' == $_GET['download'] ) {
-			// restricting to admins only
-			if ( ! current_user_can( 'update_core' ) ) {
+			// allowing for filterable capabilities
+			$user_cap = apply_filters( 'post-payment-caps', 'update_core' );
+			// restricting to admins only by default
+			if ( ! current_user_can( $user_cap ) ) {
 				wp_die( __( 'You do not have permission to do this', 'post-payments' ) );
 			}
 			// setting headers
-			header('Content-Type: text/csv; charset=utf-8');
-			header('Content-Disposition: attachment; filename=' . sanitize_text_field( $_GET['from_date'] ) . '-to-' . sanitize_text_field( $_GET['to_date'] ) . '-author-data.csv');
+			header( 'Content-Type: text/csv; charset=utf-8' );
+			header( 'Content-Disposition: attachment; filename=' . sanitize_text_field( $_GET['from_date'] ) . '-to-' . sanitize_text_field( $_GET['to_date'] ) . '-author-data.csv' );
 			// getting authors for report
 			$authors = $this->get_report_data( sanitize_text_field( $_GET['from_date'] ), sanitize_text_field( $_GET['to_date'] ) );
 			// start creating the csv string
-			$csv = "Total,Name,Articles\n";
+			$labels = array(
+				esc_html__( 'Total', 'post-payments' ),
+				esc_html__( 'Name', 'post-payments' ),
+				esc_html__( 'Articles', 'post-payments' ),
+				"\n",
+			);
+			$csv = implode( ',', $labels );
 			foreach ( $authors as $name => $author ) {
 				$author_posts = $author['posts'];
 				foreach ( $author_posts as $key => $post ) {
 					if ( 0 == $key ) {
 						// first row for each author
-						$csv .= $author['total'] . ',' . $name . ',' . get_the_title( $post ) . "\n";
+						$csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . esc_html( get_the_title( $post ) ) . "\n";
 					} else {
 						// empty info to group articles by author
-						$csv .= '' . ',' . '' . ',' . get_the_title( $post ) . "\n";
+						$csv .= '' . ',' . '' . ',' . esc_html( get_the_title( $post ) ) . "\n";
 					}
 				}
 			}
