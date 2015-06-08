@@ -14,7 +14,6 @@ class Post_Payments {
 	public $settings_option = 'post-payments-settings';
 	public $meta_key = 'post_cost';
 	public $currency_symbol = '$';
-	public $authors;
 
 	public function __construct() {
 
