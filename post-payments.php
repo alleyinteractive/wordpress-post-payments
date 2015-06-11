@@ -149,6 +149,11 @@ class Post_Payments {
 					'value' => '0.00',
 					'compare' => '!=',
 				),
+				array(
+					'key' => $this->meta_key,
+					'value' => '',
+					'compare' => '!=',
+				),
 			),
 			'date_query' => array(
 				array(
@@ -196,7 +201,9 @@ class Post_Payments {
 	}
 
 	public function format_currency( $number ) {
-		return $this->currency_symbol . number_format( $number, 2 );
+		if ( ! empty( $number ) ) {
+			return $this->currency_symbol . number_format( $number, 2 );
+		}
 	}
 
 	public function download_report() {
