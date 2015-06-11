@@ -146,10 +146,6 @@ class Post_Payments {
 			'meta_query' => array(
 				array(
 					'key' => $this->meta_key,
-					'compare' => 'EXISTS',
-				),
-				array(
-					'key' => 'post_cost',
 					'value' => '0.00',
 					'compare' => '!=',
 				),
