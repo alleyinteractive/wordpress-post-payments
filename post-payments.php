@@ -18,7 +18,7 @@ class Post_Payments {
 	public function __construct() {
 
 		add_action( 'init', array( $this, 'add_meta_boxes' ) );
-		add_action( 'init', array( $this, 'add_settings_page' ) );
+		add_action( 'init', array( $this, 'add_settings_page' ), 99 );
 		add_action( 'admin_init', array( $this, 'enqueue' ) );
 		add_action( 'admin_menu', array( $this, 'add_tool_page' ) );
 		add_action( 'admin_init', array( $this, 'download_report' ) );
@@ -112,7 +112,7 @@ class Post_Payments {
 
 				<?php foreach ( $authors as $name => $data ): ?>
 					<p class="post-payments-author-name"><b><?php echo esc_html( $name ); ?></b></p>
-					<ul class="post-payments-list"><?php foreach ( $data['posts'] as $post_id ): ?>
+					<ul class="post-payments-list"><?php foreach ( $data['posts'] as $post_id ) : ?>
 						<li><?php echo esc_html( $this->format_currency( get_post_meta( $post_id, $this->meta_key, true ) ) ); ?>: <i><a href="<?php echo esc_url( get_permalink( $post_id ) ); ?>"><?php echo esc_html( get_the_title( $post_id ) ); ?></a></i></li>
 					<?php endforeach; ?></ul>
 					<p class="post-payments-author-payment"><?php esc_html_e( 'Total payment:', 'post-payments' ); ?> <b><?php echo esc_html( $this->format_currency( $data['total'] ) ); ?></b></p>
@@ -147,6 +147,11 @@ class Post_Payments {
 				array(
 					'key' => $this->meta_key,
 					'compare' => 'EXISTS',
+				),
+				array(
+					'key' => 'post_cost',
+					'value' => '0.00',
+					'compare' => '!=',
 				),
 			),
 			'date_query' => array(
