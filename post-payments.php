@@ -25,7 +25,12 @@ class Post_Payments {
 
 		$settings = get_option( $this->settings_option );
 		if ( ! empty( $settings['currency_symbol'] ) ) {
-			$this->currency_symbol = $settings['currency_symbol'];
+			// Adding a space after alpha base currency identifiers
+			if ( preg_match( '#[a-z]+$#i', $settings['currency_symbol'] ) ) {
+				$this->currency_symbol = $settings['currency_symbol'] . ' ';
+			} else {
+				$this->currency_symbol = $settings['currency_symbol'];
+			}
 		}
 	}
 
@@ -146,8 +151,8 @@ class Post_Payments {
 			'meta_query' => array(
 				array(
 					'key' => $this->meta_key,
-					'value' => '0.00',
-					'compare' => '!=',
+					'value' => array( '0.00', '' ),
+					'compare' => 'NOT IN',
 				),
 			),
 			'date_query' => array(
@@ -196,7 +201,9 @@ class Post_Payments {
 	}
 
 	public function format_currency( $number ) {
-		return $this->currency_symbol . number_format( $number, 2 );
+		if ( ! empty( $number ) ) {
+			return $this->currency_symbol . number_format_i18n( $number, 2 );
+		}
 	}
 
 	public function download_report() {
