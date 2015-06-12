@@ -197,7 +197,7 @@ class Post_Payments {
 
 	public function format_currency( $number ) {
 		if ( ! empty( $number ) ) {
-			return $this->currency_symbol . number_format( $number, 2 );
+			return $this->currency_symbol . number_format_i18n( $number, 2 );
 		}
 	}
 
