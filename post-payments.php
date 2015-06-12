@@ -146,13 +146,8 @@ class Post_Payments {
 			'meta_query' => array(
 				array(
 					'key' => $this->meta_key,
-					'value' => '0.00',
-					'compare' => '!=',
-				),
-				array(
-					'key' => $this->meta_key,
-					'value' => '',
-					'compare' => '!=',
+					'value' => array( '0.00', '' ),
+					'compare' => 'NOT IN',
 				),
 			),
 			'date_query' => array(
