@@ -197,6 +197,10 @@ class Post_Payments {
 
 	public function format_currency( $number ) {
 		if ( ! empty( $number ) ) {
+			// Adding a space after alpha base currency identifiers
+			if ( preg_match( '#[a-zA-Z]*#', $this->currency_symbol ) ) {
+				$this->currency_symbol = $this->currency_symbol . ' ';
+			}
 			return $this->currency_symbol . number_format_i18n( $number, 2 );
 		}
 	}
