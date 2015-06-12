@@ -25,7 +25,12 @@ class Post_Payments {
 
 		$settings = get_option( $this->settings_option );
 		if ( ! empty( $settings['currency_symbol'] ) ) {
-			$this->currency_symbol = $settings['currency_symbol'];
+			// Adding a space after alpha base currency identifiers
+			if ( preg_match( '#[a-z]+$#i', $settings['currency_symbol'], $matches ) ) {
+				$this->currency_symbol = $settings['currency_symbol'] . ' ';
+			} else {
+				$this->currency_symbol = $settings['currency_symbol'];
+			}
 		}
 	}
 
@@ -197,10 +202,6 @@ class Post_Payments {
 
 	public function format_currency( $number ) {
 		if ( ! empty( $number ) ) {
-			// Adding a space after alpha base currency identifiers
-			if ( preg_match( '#[a-zA-Z]+$#', $this->currency_symbol, $matches ) ) {
-				$this->currency_symbol = $this->currency_symbol . ' ';
-			}
 			return $this->currency_symbol . number_format_i18n( $number, 2 );
 		}
 	}
