@@ -252,8 +252,6 @@ class Post_Payments {
                 esc_html__( 'Total', 'post-payments' ),
                 esc_html__( 'Name', 'post-payments' ),
                 esc_html__( 'Articles', 'post-payments' ),
-                '',
-                '',
                 esc_html__( 'Tags', 'post-payments' ),
                 "\n",
             );
@@ -267,12 +265,16 @@ class Post_Payments {
                             $tags = implode( '; ', $author['tags'][ $post ] );
                         }
                     }
+                    // Strip commas from post title and decode entities
+                    $title = get_the_title( $post );
+                    $title = str_replace( ',', '', $title );
+                    $title = wp_kses_decode_entities( $title );
                     if ( 0 == $key ) {
                         // first row for each author
-                        $csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . esc_html( get_the_title( $post ) ) . ',' . '' . ',' . ''. ',' . esc_html( $tags ) . "\n";
+                        $csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . $title . ',' . esc_html( $tags ) . "\n";
                     } else {
                         // empty info to group articles by author
-                        $csv .= '' . ',' . ''. ',' . esc_html( get_the_title( $post ) ) . ',' . '' . ',' . ''. ',' . esc_html( $tags ) . "\n";
+                        $csv .= '' . ',' . ''. ',' . $title . ',' . esc_html( $tags ) . "\n";
                     }
                 }
             }
