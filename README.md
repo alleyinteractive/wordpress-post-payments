@@ -19,6 +19,7 @@ Activate the plugin and go to Settings -> Post Payments. Select the post types t
 1.0 - Initial release
 
 1.1 - Add tags for reporting functionality only (not public)
-* Add report-tags taxonomy
-* Add repeating field metabox to allow user to add multiple tags w/ ability to edit only from term screen
-* Update csv report export to include column containing tags
+* Feature - Add report-tags taxonomy
+* Feature - Add repeating field metabox to allow user to add multiple tags w/ ability to edit only from term screen
+* Feature - Update csv report export to include column containing tags
+* Bug - Fixed issue where commas in post titles would create additional columns in the report output.
