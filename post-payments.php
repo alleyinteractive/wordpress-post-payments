@@ -53,9 +53,10 @@ class Post_Payments {
             'add_more_label' => 'Add Another Report Tag',
             'children'       => array(
 				'report_tag' => new Fieldmanager_Select( array(
+                    'first_empty' => true,
                     'datasource' => new Fieldmanager_Datasource_Term( array(
-                        'taxonomy'               => 'report-tags',
-                        'taxonomy_save_to_terms' => true,
+                        'taxonomy' => 'report-tags',
+                        'append_taxonomy' => true,
                     ) ),
 				) ),
 			),
@@ -307,15 +308,16 @@ class Post_Payments {
 			),
 			'hierarchical'          => false,
 			'show_ui'               => true,
-			'show_in_quick_edit'    => false,
+			'show_in_quick_edit'    => true,
 			'meta_box_cb'           => false,
 			'show_admin_column'     => true,
 			'update_count_callback' => '_update_post_term_count',
-			'query_var'             => false,
+			'query_var'             => 'report_tag',
 			'rewrite'               => false,
 		);
 		register_taxonomy( 'report-tags', array( 'post' ), $args );
 	}
+
 }
 
 new Post_Payments();
