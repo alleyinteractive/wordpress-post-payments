@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Post Payments
  * Description: Tracks story cost and payment due totals.
- * Version: 1.1
+ * Version: 1.2
  * Author: Matt Johnson, Alley Interactive
  *
  */
@@ -22,6 +22,9 @@ class Post_Payments {
 		add_action( 'admin_init', array( $this, 'enqueue' ) );
 		add_action( 'admin_menu', array( $this, 'add_tool_page' ) );
 		add_action( 'admin_init', array( $this, 'download_report' ) );
+        add_action( 'wp_ajax_link_author_post_cost_to_post', array( $this, 'link_author_post_cost_to_post' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+
 
 		$settings = get_option( $this->settings_option );
 		if ( ! empty( $settings['currency_symbol'] ) ) {
@@ -46,6 +49,7 @@ class Post_Payments {
 			'attributes' => array( 'size' => 10, 'placeholder' => '0.00' ),
 		) );
 		$fm->add_meta_box( __( 'Story Cost', 'post-payments' ), $this->get_post_types(), 'normal', 'default' );
+        $fm->add_user_form( __( 'Story Cost', 'post-payments' ) );
 
         $fm = new Fieldmanager_Group( array(
             'name'           => 'report_tags',
@@ -320,6 +324,48 @@ class Post_Payments {
 		);
 		register_taxonomy( 'report-tags', array( 'post' ), $args );
 	}
+
+    /**
+     * Ajax callback for linking author post cost to post
+     *
+     * @return void
+     */
+    public function link_author_post_cost_to_post() {
+        $author_slug = ! empty( $_POST['author_slug'] ) ? sanitize_text_field( $_POST['author_slug'] ) : '';
+        if ( ! empty( $author_slug ) ) {
+            // First attempt to get guest author from post type
+            $posts = get_posts( array(
+                'post_type' => 'guest-author',
+                'meta_key'     => 'cap-user_login',
+                'meta_value'   => $author_slug,
+                'posts_per_page' => 1,
+            ) );
+            if ( ! empty( $posts[0] ) ) {
+                $author = $posts[0];
+                $author_id = $author->ID;
+                $author_post_cost = get_post_meta( $author_id, 'post_cost', true );
+                if ( ! empty( $author_post_cost ) ) {
+                    echo json_encode( $author_post_cost );
+                }
+            } else { // Try to get normal user if guest author wasn't successfull
+                $user_id = get_user_by( $author_slug, 'ID' );
+                if ( ! empty( $user_id ) ) {
+                    $user_post_cost = get_user_meta( $user_id, 'post_cost', true );
+                    if ( ! emtpy( $user_post_cost ) ) {
+                        echo json_encode( $user_post_cost );
+                    }
+                }
+            }
+        }
+        exit;
+    }
+
+    public function admin_enqueue_scripts() {
+        global $post;
+        wp_enqueue_script( 'post-payments-global', plugin_dir_url( __FILE__ ) . '/js/global.js', array( 'jquery' ), '0.1', true );
+        wp_localize_script( 'post-payments-global', 'post_payments', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'action' => 'link_author_post_cost_to_post' ) );
+    }
+
 
 }
 
