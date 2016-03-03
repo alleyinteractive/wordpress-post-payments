@@ -47,22 +47,22 @@ class Post_Payments {
 		) );
 		$fm->add_meta_box( __( 'Story Cost', 'post-payments' ), $this->get_post_types(), 'normal', 'default' );
 
-		$fm = new Fieldmanager_Group( array(
+        $fm = new Fieldmanager_Group( array(
             'name'           => 'report_tags',
             'limit'          => 0,
             'add_more_label' => 'Add Another Report Tag',
             'children'       => array(
-				'report_tag' => new Fieldmanager_Select( array(
+                'report_tag' => new Fieldmanager_Select( array(
                     'first_empty' => true,
-                    'datasource' => new Fieldmanager_Datasource_Term( array(
-                        'taxonomy' => 'report-tags',
+                    'datasource'  => new Fieldmanager_Datasource_Term( array(
+                        'taxonomy'        => 'report-tags',
                         'append_taxonomy' => true,
                     ) ),
-				) ),
-			),
-		) );
+                ) ),
+            ),
+        ) );
         $fm->add_meta_box( __( 'Report Tags', 'post-payments' ), $this->get_post_types(), 'side', 'default' );
-	}
+    }
 
 	public function add_settings_page() {
 
@@ -72,15 +72,15 @@ class Post_Payments {
 
 		$post_types = get_post_types( array( 'show_ui' => true ), 'names' );
 		$fm = new Fieldmanager_Group( array(
-			'name' => $this->settings_option,
-			'children' => array(
+            'name'     => $this->settings_option,
+            'children' => array(
 				'post_types' => new Fieldmanager_Checkboxes( array(
-					'label' => __( 'Select post types to include in cost calculations.', 'post-payments' ),
-					'options' => $post_types,
+                    'label'   => __( 'Select post types to include in cost calculations.', 'post-payments' ),
+                    'options' => $post_types,
 				) ),
 				'currency_symbol' => new Fieldmanager_TextField( array(
-					'label' => __( 'Currency symbol', 'post-payments' ),
-					'attributes' => array( 'size' => 3 ),
+                    'label'      => __( 'Currency symbol', 'post-payments' ),
+                    'attributes' => array( 'size' => 3 ),
 				) ),
 			),
 		) );
@@ -161,20 +161,20 @@ class Post_Payments {
 
 	public function get_report_data( $from_date, $to_date ) {
 		$posts = get_posts( array(
-			'posts_per_page' => 1000,
-			'post_status' => 'publish',
-			'post_type' => $this->get_post_types(),
-			'meta_query' => array(
+            'posts_per_page' => 1000,
+            'post_status'    => 'publish',
+            'post_type'      => $this->get_post_types(),
+            'meta_query'     => array(
 				array(
-					'key' => $this->meta_key,
-					'value' => array( '0.00', '' ),
-					'compare' => 'NOT IN',
-				)
+                    'key'     => $this->meta_key,
+                    'value'   => array( '0.00', '' ),
+                    'compare' => 'NOT IN',
+				),
 			),
 			'date_query' => array(
 				array(
-					'after' => $from_date,
-					'before' => $to_date,
+                    'after'  => $from_date,
+                    'before' => $to_date,
 				),
 			),
 		) );
@@ -197,9 +197,9 @@ class Post_Payments {
 	public function add_author( $post_author, $post_id, $data = null ) {
 		if ( ! $data ) {
 			$data = array(
-				'posts' => array(),
-				'payments' => array(),
-                'tags' => array(),
+                'posts'    => array(),
+                'payments' => array(),
+                'tags'     => array(),
 			);
 		}
 
