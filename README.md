@@ -14,3 +14,12 @@ Activate the plugin and go to Settings -> Post Payments. Select the post types t
 * Support sites using WP users rather than Co-Authors Plus (which describes almost no sites at Alley, currently).
 * If multiple authors are attached to a post with a cost entered, each author will be credited that value in their payment due total. We could offer an option to treat these costs are split equally amongst authors, or credited in full to each author. Currently, editors would need to enter the cost paid per author when entering costs.
 * Export the report page to CSV, in some potentiall useful format.
+
+## Release Notes
+1.0 - Initial release
+
+1.1 - Add tags for reporting functionality only (not public)
+* Feature - Add report-tags taxonomy
+* Feature - Add repeating field metabox to allow user to add multiple tags w/ ability to edit only from term screen
+* Feature - Update csv report export to include column containing tags
+* Bug - Fixed issue where commas in post titles would create additional columns in the report output.

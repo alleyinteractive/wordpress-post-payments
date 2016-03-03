@@ -2,9 +2,8 @@
 /**
  * Plugin Name: Post Payments
  * Description: Tracks story cost and payment due totals.
- * Version: 1.0
+ * Version: 1.1
  * Author: Matt Johnson, Alley Interactive
- *
  *
  */
 
@@ -19,6 +18,7 @@ class Post_Payments {
 
 		add_action( 'init', array( $this, 'add_meta_boxes' ) );
 		add_action( 'init', array( $this, 'add_settings_page' ), 99 );
+		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_action( 'admin_init', array( $this, 'enqueue' ) );
 		add_action( 'admin_menu', array( $this, 'add_tool_page' ) );
 		add_action( 'admin_init', array( $this, 'download_report' ) );
@@ -46,7 +46,23 @@ class Post_Payments {
 			'attributes' => array( 'size' => 10, 'placeholder' => '0.00' ),
 		) );
 		$fm->add_meta_box( __( 'Story Cost', 'post-payments' ), $this->get_post_types(), 'normal', 'default' );
-	}
+
+        $fm = new Fieldmanager_Group( array(
+            'name'           => 'report_tags',
+            'limit'          => 0,
+            'add_more_label' => 'Add Another Report Tag',
+            'children'       => array(
+                'report_tag' => new Fieldmanager_Select( array(
+                    'first_empty' => true,
+                    'datasource'  => new Fieldmanager_Datasource_Term( array(
+                        'taxonomy'        => 'report-tags',
+                        'append_taxonomy' => true,
+                    ) ),
+                ) ),
+            ),
+        ) );
+        $fm->add_meta_box( __( 'Report Tags', 'post-payments' ), $this->get_post_types(), 'side', 'default' );
+    }
 
 	public function add_settings_page() {
 
@@ -56,15 +72,15 @@ class Post_Payments {
 
 		$post_types = get_post_types( array( 'show_ui' => true ), 'names' );
 		$fm = new Fieldmanager_Group( array(
-			'name' => $this->settings_option,
-			'children' => array(
+            'name'     => $this->settings_option,
+            'children' => array(
 				'post_types' => new Fieldmanager_Checkboxes( array(
-					'label' => __( 'Select post types to include in cost calculations.', 'post-payments' ),
-					'options' => $post_types,
+                    'label'   => __( 'Select post types to include in cost calculations.', 'post-payments' ),
+                    'options' => $post_types,
 				) ),
 				'currency_symbol' => new Fieldmanager_TextField( array(
-					'label' => __( 'Currency symbol', 'post-payments' ),
-					'attributes' => array( 'size' => 3 ),
+                    'label'      => __( 'Currency symbol', 'post-payments' ),
+                    'attributes' => array( 'size' => 3 ),
 				) ),
 			),
 		) );
@@ -145,20 +161,20 @@ class Post_Payments {
 
 	public function get_report_data( $from_date, $to_date ) {
 		$posts = get_posts( array(
-			'posts_per_page' => 1000,
-			'post_status' => 'publish',
-			'post_type' => $this->get_post_types(),
-			'meta_query' => array(
+            'posts_per_page' => 1000,
+            'post_status'    => 'publish',
+            'post_type'      => $this->get_post_types(),
+            'meta_query'     => array(
 				array(
-					'key' => $this->meta_key,
-					'value' => array( '0.00', '' ),
-					'compare' => 'NOT IN',
+                    'key'     => $this->meta_key,
+                    'value'   => array( '0.00', '' ),
+                    'compare' => 'NOT IN',
 				),
 			),
 			'date_query' => array(
 				array(
-					'after' => $from_date,
-					'before' => $to_date,
+                    'after'  => $from_date,
+                    'before' => $to_date,
 				),
 			),
 		) );
@@ -175,15 +191,15 @@ class Post_Payments {
 				}
 			}
 		}
-
 		return $authors;
 	}
 
 	public function add_author( $post_author, $post_id, $data = null ) {
 		if ( ! $data ) {
 			$data = array(
-				'posts' => array(),
-				'payments' => array(),
+                'posts'    => array(),
+                'payments' => array(),
+                'tags'     => array(),
 			);
 		}
 
@@ -194,10 +210,22 @@ class Post_Payments {
 			$data['payments'][] = floatval( $payment );
 		}
 
-		$data['total'] = array_sum( $data['payments'] );
+        $report_tags = get_post_meta( $post_id, 'report_tags', true );
+        $tags = array();
+        if ( ! empty( $report_tags ) ) {
+            foreach ( $report_tags as $tag ) {
+                if ( ! empty( $tag['report_tag'] ) ) {
+                    $tag = get_term( $tag['report_tag'], 'report-tags' );
+                    if ( ! empty( $tag->name ) ) {
+                        $tags[] = $tag->name;
+                    }
+                }
+            }
+        }
+        $data['tags'][ $post_id ] = $tags;
 
+        $data['total'] = array_sum( $data['payments'] );
 		return $data;
-
 	}
 
 	public function format_currency( $number ) {
@@ -220,33 +248,78 @@ class Post_Payments {
 			header( 'Content-Disposition: attachment; filename=' . sanitize_text_field( $_GET['from_date'] ) . '-to-' . sanitize_text_field( $_GET['to_date'] ) . '-author-data.csv' );
 			// getting authors for report
 			$authors = $this->get_report_data( sanitize_text_field( $_GET['from_date'] ), sanitize_text_field( $_GET['to_date'] ) );
-			// start creating the csv string
-			$labels = array(
-				esc_html__( 'Total', 'post-payments' ),
-				esc_html__( 'Name', 'post-payments' ),
-				esc_html__( 'Articles', 'post-payments' ),
-				"\n",
-			);
-			$csv = implode( ',', $labels );
-			foreach ( $authors as $name => $author ) {
-				$author_posts = $author['posts'];
-				foreach ( $author_posts as $key => $post ) {
-					if ( 0 == $key ) {
-						// first row for each author
-						$csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . esc_html( get_the_title( $post ) ) . "\n";
-					} else {
-						// empty info to group articles by author
-						$csv .= '' . ',' . '' . ',' . esc_html( get_the_title( $post ) ) . "\n";
-					}
-				}
-			}
-			// echoing the csv string for the download
+            // start creating the csv string
+            $labels = array(
+                esc_html__( 'Total', 'post-payments' ),
+                esc_html__( 'Name', 'post-payments' ),
+                esc_html__( 'Articles', 'post-payments' ),
+                esc_html__( 'Tags', 'post-payments' ),
+                "\n",
+            );
+            $csv = implode( ',', $labels );
+            foreach ( $authors as $name => $author ) {
+                $author_posts = $author['posts'];
+                foreach ( $author_posts as $key => $post ) {
+                    $tags = '';
+                    if ( ! empty( $author['tags'] ) ) {
+                        if ( ! empty( $author['tags'][ $post ] ) ) {
+                            $tags = implode( '; ', $author['tags'][ $post ] );
+                        }
+                    }
+                    // Strip commas from post title and decode entities
+                    $title = get_the_title( $post );
+                    $title = str_replace( ',', '', $title );
+                    $title = wp_kses_decode_entities( $title );
+                    if ( 0 == $key ) {
+                        // first row for each author
+                        $csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . $title . ',' . esc_html( $tags ) . "\n";
+                    } else {
+                        // empty info to group articles by author
+                        $csv .= '' . ',' . ''. ',' . $title . ',' . esc_html( $tags ) . "\n";
+                    }
+                }
+            }
+            // echoing the csv string for the download
 			echo $csv;
 			die();
 		}
 
 	}
 
+	/**
+	 * Create taxonomies
+	 *
+	 * @return null
+	 */
+	public function register_taxonomies() {
+		// Register Report tags taxonomy, but keep hidden from post edit screen.
+		// We'll register a custom metabox with a dropdown instead.
+		$args = array(
+			'labels' => array(
+				'name'              => __( 'Report Tags', 'post-payments' ),
+				'singular_name'     => __( 'Report Tag', 'taxonomy singular name' ),
+				'search_items'      => __( 'Search Report Tags' ),
+				'all_items'         => __( 'All Report Tags' ),
+				'edit_item'         => __( 'Edit Report Tag' ),
+				'update_item'       => __( 'Update Report Tag' ),
+				'add_new_item'      => __( 'Add New Report Tag' ),
+				'new_item_name'     => __( 'New Report Tag Name' ),
+				'menu_name'         => __( 'Report Tags' ),
+			),
+            'hierarchical'          => false,
+            'public'                => false,
+            'show_ui'               => true,
+            'show_in_nav_menus'     => false,
+            'show_tagcloud'         => false,
+            'show_in_quick_edit'    => true,
+            'meta_box_cb'           => false,
+            'show_admin_column'     => true,
+            'update_count_callback' => '_update_post_term_count',
+            'query_var'             => 'report_tag',
+            'rewrite'               => false,
+		);
+		register_taxonomy( 'report-tags', array( 'post' ), $args );
+	}
 
 }
 
