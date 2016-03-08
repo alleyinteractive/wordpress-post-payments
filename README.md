@@ -23,3 +23,5 @@ Activate the plugin and go to Settings -> Post Payments. Select the post types t
 * Feature - Add repeating field metabox to allow user to add multiple tags w/ ability to edit only from term screen
 * Feature - Update csv report export to include column containing tags
 * Bug - Fixed issue where commas in post titles would create additional columns in the report output.
+
+1.2 - Add cost to guest authors and relate it to posts when author is selected.
