@@ -22,8 +22,8 @@ class Post_Payments {
 		add_action( 'admin_init', array( $this, 'enqueue' ) );
 		add_action( 'admin_menu', array( $this, 'add_tool_page' ) );
 		add_action( 'admin_init', array( $this, 'download_report' ) );
-        add_action( 'wp_ajax_link_author_post_cost_to_post', array( $this, 'link_author_post_cost_to_post' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'wp_ajax_link_author_post_cost_to_post', array( $this, 'link_author_post_cost_to_post' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 
 		$settings = get_option( $this->settings_option );
@@ -49,24 +49,24 @@ class Post_Payments {
 			'attributes' => array( 'size' => 10, 'placeholder' => '0.00' ),
 		) );
 		$fm->add_meta_box( __( 'Story Cost', 'post-payments' ), $this->get_post_types(), 'normal', 'default' );
-        $fm->add_user_form( __( 'Story Cost', 'post-payments' ) );
+		$fm->add_user_form( __( 'Story Cost', 'post-payments' ) );
 
-        $fm = new Fieldmanager_Group( array(
-            'name'           => 'report_tags',
-            'limit'          => 0,
-            'add_more_label' => 'Add Another Report Tag',
-            'children'       => array(
-                'report_tag' => new Fieldmanager_Select( array(
-                    'first_empty' => true,
-                    'datasource'  => new Fieldmanager_Datasource_Term( array(
-                        'taxonomy'        => 'report-tags',
-                        'append_taxonomy' => true,
-                    ) ),
-                ) ),
-            ),
-        ) );
-        $fm->add_meta_box( __( 'Report Tags', 'post-payments' ), $this->get_post_types(), 'side', 'default' );
-    }
+		$fm = new Fieldmanager_Group( array(
+			'name'           => 'report_tags',
+			'limit'          => 0,
+			'add_more_label' => 'Add Another Report Tag',
+			'children'       => array(
+				'report_tag' => new Fieldmanager_Select( array(
+					'first_empty' => true,
+					'datasource'  => new Fieldmanager_Datasource_Term( array(
+						'taxonomy'        => 'report-tags',
+						'append_taxonomy' => true,
+					) ),
+				) ),
+			),
+		) );
+		$fm->add_meta_box( __( 'Report Tags', 'post-payments' ), $this->get_post_types(), 'side', 'default' );
+	}
 
 	public function add_settings_page() {
 
@@ -76,15 +76,15 @@ class Post_Payments {
 
 		$post_types = get_post_types( array( 'show_ui' => true ), 'names' );
 		$fm = new Fieldmanager_Group( array(
-            'name'     => $this->settings_option,
-            'children' => array(
+			'name'     => $this->settings_option,
+			'children' => array(
 				'post_types' => new Fieldmanager_Checkboxes( array(
-                    'label'   => __( 'Select post types to include in cost calculations.', 'post-payments' ),
-                    'options' => $post_types,
+					'label'   => __( 'Select post types to include in cost calculations.', 'post-payments' ),
+					'options' => $post_types,
 				) ),
 				'currency_symbol' => new Fieldmanager_TextField( array(
-                    'label'      => __( 'Currency symbol', 'post-payments' ),
-                    'attributes' => array( 'size' => 3 ),
+					'label'      => __( 'Currency symbol', 'post-payments' ),
+					'attributes' => array( 'size' => 3 ),
 				) ),
 			),
 		) );
@@ -164,20 +164,20 @@ class Post_Payments {
 
 	public function get_report_data( $from_date, $to_date ) {
 		$posts = get_posts( array(
-            'posts_per_page' => 1000,
-            'post_status'    => 'publish',
-            'post_type'      => array( 'post', 'evergreen' ),
-            'meta_query'     => array(
+			'posts_per_page' => 1000,
+			'post_status'    => 'publish',
+			'post_type'      => array( 'post', 'evergreen' ),
+			'meta_query'     => array(
 				array(
-                    'key'     => $this->meta_key,
-                    'value'   => array( '0.00', '' ),
-                    'compare' => 'NOT IN',
+					'key'     => $this->meta_key,
+					'value'   => array( '0.00', '' ),
+					'compare' => 'NOT IN',
 				),
 			),
 			'date_query' => array(
 				array(
-                    'after'  => $from_date,
-                    'before' => $to_date,
+					'after'  => $from_date,
+					'before' => $to_date,
 				),
 			),
 		) );
@@ -200,9 +200,9 @@ class Post_Payments {
 	public function add_author( $post_author, $post_id, $data = null ) {
 		if ( ! $data ) {
 			$data = array(
-                'posts'    => array(),
-                'payments' => array(),
-                'tags'     => array(),
+				'posts'    => array(),
+				'payments' => array(),
+				'tags'     => array(),
 			);
 		}
 
@@ -213,21 +213,21 @@ class Post_Payments {
 			$data['payments'][] = floatval( $payment );
 		}
 
-        $report_tags = get_post_meta( $post_id, 'report_tags', true );
-        $tags = array();
-        if ( ! empty( $report_tags ) ) {
-            foreach ( $report_tags as $tag ) {
-                if ( ! empty( $tag['report_tag'] ) ) {
-                    $tag = get_term( $tag['report_tag'], 'report-tags' );
-                    if ( ! empty( $tag->name ) ) {
-                        $tags[] = $tag->name;
-                    }
-                }
-            }
-        }
-        $data['tags'][ $post_id ] = $tags;
+		$report_tags = get_post_meta( $post_id, 'report_tags', true );
+		$tags = array();
+		if ( ! empty( $report_tags ) ) {
+			foreach ( $report_tags as $tag ) {
+				if ( ! empty( $tag['report_tag'] ) ) {
+					$tag = get_term( $tag['report_tag'], 'report-tags' );
+					if ( ! empty( $tag->name ) ) {
+						$tags[] = $tag->name;
+					}
+				}
+			}
+		}
+		$data['tags'][ $post_id ] = $tags;
 
-        $data['total'] = array_sum( $data['payments'] );
+		$data['total'] = array_sum( $data['payments'] );
 		return $data;
 	}
 
@@ -251,38 +251,38 @@ class Post_Payments {
 			header( 'Content-Disposition: attachment; filename=' . sanitize_text_field( $_GET['from_date'] ) . '-to-' . sanitize_text_field( $_GET['to_date'] ) . '-author-data.csv' );
 			// getting authors for report
 			$authors = $this->get_report_data( sanitize_text_field( $_GET['from_date'] ), sanitize_text_field( $_GET['to_date'] ) );
-            // start creating the csv string
-            $labels = array(
-                esc_html__( 'Total', 'post-payments' ),
-                esc_html__( 'Name', 'post-payments' ),
-                esc_html__( 'Articles', 'post-payments' ),
-                esc_html__( 'Tags', 'post-payments' ),
-                "\n",
-            );
-            $csv = implode( ',', $labels );
-            foreach ( $authors as $name => $author ) {
-                $author_posts = $author['posts'];
-                foreach ( $author_posts as $key => $post ) {
-                    $tags = '';
-                    if ( ! empty( $author['tags'] ) ) {
-                        if ( ! empty( $author['tags'][ $post ] ) ) {
-                            $tags = implode( '; ', $author['tags'][ $post ] );
-                        }
-                    }
-                    // Strip commas from post title and decode entities
-                    $title = get_the_title( $post );
-                    $title = str_replace( ',', '', $title );
-                    $title = wp_kses_decode_entities( $title );
-                    if ( 0 == $key ) {
-                        // first row for each author
-                        $csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . $title . ',' . esc_html( $tags ) . "\n";
-                    } else {
-                        // empty info to group articles by author
-                        $csv .= '' . ',' . ''. ',' . $title . ',' . esc_html( $tags ) . "\n";
-                    }
-                }
-            }
-            // echoing the csv string for the download
+			// start creating the csv string
+			$labels = array(
+				esc_html__( 'Total', 'post-payments' ),
+				esc_html__( 'Name', 'post-payments' ),
+				esc_html__( 'Articles', 'post-payments' ),
+				esc_html__( 'Tags', 'post-payments' ),
+				"\n",
+			);
+			$csv = implode( ',', $labels );
+			foreach ( $authors as $name => $author ) {
+				$author_posts = $author['posts'];
+				foreach ( $author_posts as $key => $post ) {
+					$tags = '';
+					if ( ! empty( $author['tags'] ) ) {
+						if ( ! empty( $author['tags'][ $post ] ) ) {
+							$tags = implode( '; ', $author['tags'][ $post ] );
+						}
+					}
+					// Strip commas from post title and decode entities
+					$title = get_the_title( $post );
+					$title = str_replace( ',', '', $title );
+					$title = wp_kses_decode_entities( $title );
+					if ( 0 == $key ) {
+						// first row for each author
+						$csv .= absint( $author['total'] ) . ',' . esc_html( $name ) . ',' . $title . ',' . esc_html( $tags ) . "\n";
+					} else {
+						// empty info to group articles by author
+						$csv .= '' . ',' . ''. ',' . $title . ',' . esc_html( $tags ) . "\n";
+					}
+				}
+			}
+			// echoing the csv string for the download
 			echo $csv;
 			die();
 		}
@@ -309,61 +309,60 @@ class Post_Payments {
 				'new_item_name'     => __( 'New Report Tag Name' ),
 				'menu_name'         => __( 'Report Tags' ),
 			),
-            'hierarchical'          => false,
-            'public'                => false,
-            'show_ui'               => true,
-            'show_in_nav_menus'     => false,
-            'show_tagcloud'         => false,
-            'show_in_quick_edit'    => true,
-            'meta_box_cb'           => false,
-            'show_admin_column'     => true,
-            'update_count_callback' => '_update_post_term_count',
-            'query_var'             => 'report_tag',
-            'rewrite'               => false,
+			'hierarchical'          => false,
+			'public'                => false,
+			'show_ui'               => true,
+			'show_in_nav_menus'     => false,
+			'show_tagcloud'         => false,
+			'show_in_quick_edit'    => true,
+			'meta_box_cb'           => false,
+			'show_admin_column'     => true,
+			'update_count_callback' => '_update_post_term_count',
+			'query_var'             => 'report_tag',
+			'rewrite'               => false,
 		);
 		register_taxonomy( 'report-tags', array( 'post' ), $args );
 	}
 
-    /**
-     * Ajax callback for linking author post cost to post
-     *
-     * @return void
-     */
-    public function link_author_post_cost_to_post() {
-        $author_slug = ! empty( $_POST['author_slug'] ) ? sanitize_text_field( $_POST['author_slug'] ) : '';
-        if ( ! empty( $author_slug ) ) {
-            // First attempt to get guest author from post type
-            $posts = get_posts( array(
-                'post_type' => 'guest-author',
-                'meta_key'     => 'cap-user_login',
-                'meta_value'   => $author_slug,
-                'posts_per_page' => 1,
-            ) );
-            if ( ! empty( $posts[0] ) ) {
-                $author = $posts[0];
-                $author_id = $author->ID;
-                $author_post_cost = get_post_meta( $author_id, 'post_cost', true );
-                if ( ! empty( $author_post_cost ) ) {
-                    echo json_encode( $author_post_cost );
-                }
-            } else { // Try to get normal user if guest author wasn't successfull
-                $user_id = get_user_by( $author_slug, 'ID' );
-                if ( ! empty( $user_id ) ) {
-                    $user_post_cost = get_user_meta( $user_id, 'post_cost', true );
-                    if ( ! emtpy( $user_post_cost ) ) {
-                        echo json_encode( $user_post_cost );
-                    }
-                }
-            }
-        }
-        exit;
-    }
+	/**
+	 * Ajax callback for linking author post cost to post
+	 *
+	 * @return void
+	 */
+	public function link_author_post_cost_to_post() {
+		$author_slug = ! empty( $_POST['author_slug'] ) ? sanitize_text_field( $_POST['author_slug'] ) : '';
+		if ( ! empty( $author_slug ) ) {
+			// First attempt to get guest author from post type
+			$posts = get_posts( array(
+				'post_type' => 'guest-author',
+				'meta_key'     => 'cap-user_login',
+				'meta_value'   => $author_slug,
+				'posts_per_page' => 1,
+			) );
+			if ( ! empty( $posts[0] ) ) {
+				$author = $posts[0];
+				$author_id = $author->ID;
+				$author_post_cost = get_post_meta( $author_id, 'post_cost', true );
+				if ( ! empty( $author_post_cost ) ) {
+					echo json_encode( $author_post_cost );
+				}
+			} else { // Try to get normal user if guest author wasn't successfull
+				$user_id = get_user_by( $author_slug, 'ID' );
+				if ( ! empty( $user_id ) ) {
+					$user_post_cost = get_user_meta( $user_id, 'post_cost', true );
+					if ( ! emtpy( $user_post_cost ) ) {
+						echo json_encode( $user_post_cost );
+					}
+				}
+			}
+		}
+		exit;
+	}
 
-    public function admin_enqueue_scripts() {
-        global $post;
-        wp_enqueue_script( 'post-payments-global', plugin_dir_url( __FILE__ ) . '/js/global.js', array( 'jquery' ), '0.1', true );
-        wp_localize_script( 'post-payments-global', 'post_payments', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'action' => 'link_author_post_cost_to_post' ) );
-    }
+	public function admin_enqueue_scripts() {
+		wp_enqueue_script( 'post-payments-global', plugin_dir_url( __FILE__ ) . '/js/global.js', array( 'jquery' ), '0.1', true );
+		wp_localize_script( 'post-payments-global', 'post_payments', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'action' => 'link_author_post_cost_to_post' ) );
+	}
 
 
 }
