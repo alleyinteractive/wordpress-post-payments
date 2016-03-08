@@ -129,7 +129,6 @@ class Post_Payments {
 		if ( ! empty( $_GET['from_date'] ) && ! empty( $_GET['to_date'] ) ) {
 			$authors = $this->get_report_data( sanitize_text_field( $_GET['from_date'] ), sanitize_text_field( $_GET['to_date'] ) );
 
-
 			if ( empty( $authors ) ) {
 				?><p><b><?php esc_html_e( 'No posts found with cost data in this date range.' ); ?></b></p><?php
 			} else {
@@ -167,7 +166,7 @@ class Post_Payments {
 		$posts = get_posts( array(
             'posts_per_page' => 1000,
             'post_status'    => 'publish',
-            'post_type'      => $this->get_post_types(),
+            'post_type'      => array( 'post', 'evergreen' ),
             'meta_query'     => array(
 				array(
                     'key'     => $this->meta_key,
