@@ -21,7 +21,7 @@ class Post_Payments {
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_action( 'admin_init', array( $this, 'enqueue' ) );
 		add_action( 'admin_menu', array( $this, 'add_tool_page' ) );
-		add_action( 'admin_init', array( $this, 'download_report' ) );
+		add_action( 'admin_menu', array( $this, 'download_report' ) );
 		add_action( 'wp_ajax_link_author_post_cost_to_post', array( $this, 'link_author_post_cost_to_post' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
@@ -241,7 +241,7 @@ class Post_Payments {
 
 		if ( ! empty( $_GET['download'] ) && 'download_report' == $_GET['download'] ) {
 			// allowing for filterable capabilities
-			$user_cap = apply_filters( 'post-payment-caps', 'update_core' );
+			$user_cap = apply_filters( 'post-payment-caps', 'create_users' );
 			// restricting to admins only by default
 			if ( ! current_user_can( $user_cap ) ) {
 				wp_die( __( 'You do not have permission to do this', 'post-payments' ) );
