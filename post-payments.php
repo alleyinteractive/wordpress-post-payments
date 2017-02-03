@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Post Payments
  * Description: Tracks story cost and payment due totals.
- * Version: 1.2
+ * Version: 1.3
  * Author: Matt Johnson, Alley Interactive
  *
  */
@@ -248,7 +248,7 @@ class Post_Payments {
 			}
 			// setting headers
 			header( 'Content-Type: text/csv; charset=utf-8' );
-			header( 'Content-Disposition: attachment; filename=' . sanitize_text_field( $_GET['from_date'] ) . '-to-' . sanitize_text_field( $_GET['to_date'] ) . '-author-data.csv' );
+			header( 'Content-Disposition: attachment; filename=' . sanitize_title( $_GET['from_date'] ) . '-to-' . sanitize_title( $_GET['to_date'] ) . '-author-data.csv' );
 			// getting authors for report
 			$authors = $this->get_report_data( sanitize_text_field( $_GET['from_date'] ), sanitize_text_field( $_GET['to_date'] ) );
 			// start creating the csv string
