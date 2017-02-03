@@ -25,3 +25,5 @@ Activate the plugin and go to Settings -> Post Payments. Select the post types t
 * Bug - Fixed issue where commas in post titles would create additional columns in the report output.
 
 1.2 - Add cost to guest authors and relate it to posts when author is selected.
+
+1.3 - Bug fix for ERR_RESPONSE_HEADERS_MULTIPLE_CONTENT_DISPOSITION when trying to download the report in Chrome
